@@ -1,0 +1,33 @@
+
+package:
+  name: zuspec-be-hdlsim
+
+  dep-sets:
+
+  - name: default
+    deps: []
+
+  - name: default-dev
+    deps:
+    - name: zuspec-dataclasses
+      url: https://github.com/zuspec/zuspec-dataclasses.git
+    - name: zuspec-be-sv
+      url: https://github.com/zuspec/zuspec-be-sv.git
+    - name: pytest
+      src: pypi
+    - name: pyhdl-if
+      url: https://github.com/fvutils/pyhdl-if.git
+    - name: pytest-dfm
+      url: https://github.com/dv-flow/pytest-dfm.git
+    - name: Sphinx
+      src: pypi
+    - name: sphinx-argparse
+      src: pypi
+    - name: sphinxcontrib-makedomain
+      src: pypi
+    - name: sphinxcontrib-spelling
+      src: pypi
+    - name: sphinx-rtd-theme
+      src: pypi
+
+

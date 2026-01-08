@@ -1,0 +1,59 @@
+--- tests/unit/test_sv_generator.py
++++ tests/unit/test_sv_generator.py
+@@ -79,12 +90,15 @@
+     gen = SVTestbenchGenerator(SimpleTB)
+     files = gen.generate()
+     
+-    hdl_content = files["SimpleTB.sv"]
++    hdl_file = find_hdl_module(files, "SimpleTB")
++    assert hdl_file, f"SimpleTB module not found in {list(files.keys())}"
++    hdl_content = files[hdl_file]
+     
+     # Verify it's a valid SV module
+     assert "module" in hdl_content
+     assert "endmodule" in hdl_content
+     
++    # be-sv generated modules may be minimal for test-defined classes
+ 
+ def test_generator_instances_extern_components():
+     """Verify extern components are instantiated."""
+@@ -104,9 +118,13 @@
+     gen = SVTestbenchGenerator(TestTB)
+     files = gen.generate()
+     
+-    hdl_content = files["TestTB.sv"]
++    hdl_file = find_hdl_module(files, "TestTB")
++    assert hdl_file, f"TestTB module not found in {list(files.keys())}"
++    hdl_content = files[hdl_file]
+     
+     # Verify extern is instantiated (be-sv handles this)
++    # For test-defined classes, may be minimal
++    assert "module" in hdl_content
+     
+ 
+ def test_generator_instances_xtor_components():
+@@ -127,7 +145,11 @@
+     gen = SVTestbenchGenerator(TestTB)
+     files = gen.generate()
+     
+-    hdl_content = files["TestTB.sv"]
++    hdl_file = find_hdl_module(files, "TestTB")
++    assert hdl_file, f"TestTB module not found in {list(files.keys())}"
++    hdl_content = files[hdl_file]
++    
++    # be-sv handles xtor instantiation
+     
+     # Verify registration in testbench
+     tb_content = files["TestTB_tb.sv"]
+@@ -153,7 +175,10 @@
+     gen = SVTestbenchGenerator(CompositeTB)
+     files = gen.generate()
+     
+-    hdl_content = files["CompositeTB.sv"]
++    hdl_file = find_hdl_module(files, "CompositeTB")
++    assert hdl_file, f"CompositeTB module not found in {list(files.keys())}"
++    hdl_content = files[hdl_file]
++    
+     tb_content = files["CompositeTB_tb.sv"]
+     
+     # Verify basic structure exists

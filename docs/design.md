@@ -51,8 +51,45 @@ Generation of XtorComponents is two-step:
   can call something reliable.
 
 ### SV / Python Connection
-On startup (initial block), the <TBComp> module must:
-- Create 
+The <TBComp> module must import the package of each transactor type used in the
+testbench environment:
+
+```verilog
+module <TBComp>;
+    import pyhdl_if::*;
+    import xtor_1::*;
+
+endmodule
+```
+On startup (initial block), the <TBComp> module must register each transactor 
+instance with the pyhdl_if package.
+
+```verilog
+module <TBComp>;
+    import pyhdl_if::*;
+    import xtor_1::*;
+
+    <TBComp>_hdl top();
+
+    initial begin
+      typedef virtual xtor_1_xtor_if <#(parameters)> xtor_1_i1_vif;
+      typedef xtor_1_exp_impl #(xtor_1_i1_vif) xtor1_i1_wrap;
+
+      xtor1_i1_wrap = new(top.xtor1_i1);
+
+      // TODO: register with pyhdl_if
+
+      // TODO: Call Python to properly configure the ObjFactory to
+      // use the be-hdlsim one.
+
+      // Run pytest
+      pyhdl_pytest();
+      $finish;
+    end
+
+endmodule
+
+```
 
 ## Operation: Python Generator
 The Python generator is an ObjFactory-like class that produces an executable Python
@@ -62,10 +99,81 @@ by the <TbComp> module prior to launching the pytest.
 
 ## DV Flow Manager Integration
 
-The HDL generator must be packed as a DFM task. A parameter on the task specifies
+The HDL generator must be packaged as a DFM task. A parameter on the task specifies
 the root Zuspec Testbench component typename. This task outputs filesets that specify
 the ordered SV sources to be compiled.
 
 
-## Zuspec Dataclasses Additions
+# How it's intended to be used
 
+Assume we have a testbench like this:
+
+```python
+
+@zdc.dataclass
+class MyTB(zdc.Component)
+    dut : DutWrapper = zdc.inst()
+    xtor : RVXtor = zdc.inst()
+    clkrst : ClkRstGenXtor = zdc.inst()
+
+    def __bind__(self):
+        return (
+            (self.xtor.xtor_if, self.dut.rv_if),
+            (self.clkrst.clock, self.dut.clock),
+            (self.clkrst.reset, self.dut.reset),
+        )
+```
+
+We have a design (DutWrapper) that we're testing. We're driving the data interface
+with 'xtor', and clock and reset with the 'clkrst' transactor.
+
+We'll have a test that looks something like this:
+
+```python
+from zuspec.be.hdlsim import HDLSim
+
+async def test_reset(zuspec_sim : HDLSim):
+    tb = zuspec_sim.create(MyTB)
+
+    await tb.clkrst.count(100)
+    await tb.clkrst.assert_reset(False)
+
+    ...
+
+```
+
+The build/run flow will be specified on a DV Flow Manager spec file:
+
+```yaml
+package:
+  name: my_tb
+
+  tasks:
+  - name: GenTB
+    uses: zuspec.be.hdlsim.GenTB
+    with:
+      class: MyTB
+  - name: SimImage
+    uses: hdlsim.vlt.SimImage
+    needs: [GenTB]
+  - name: SimRun
+    uses: hdlsim.vlt.SimRun
+    needs: [SimImage]
+    with:
+      plusargs: [pyhdl.pytest=test_reset]
+```
+
+When the user runs `dfm run SimRun`:
+- SystemVerilog will be generated for GenTB and the dependent elements
+- Verilator will compile the SystemVerilog for the testbench and PyHDL library
+- The verilator-compiled image is run, which invokes the pytest via pyhdl
+
+The bulk of your changes must be in the zuspec-be-hdlsim project. 
+
+
+## References
+- pyhdl-if plug-in to understand how the Python/SystemVerilog interface works
+- 'initiator.py' and 'target.py' in the fwvip-wb-zuspec project to see what 
+  Zuspec transactors look like
+- dv-flow-mgr to understand what flow.dv/flow.yaml files look like
+- dv-flow-libhdlsim to undestand what DFM tasks look like, and how they're registered
