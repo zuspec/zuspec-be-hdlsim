@@ -29,5 +29,7 @@ package:
       src: pypi
     - name: sphinx-rtd-theme
       src: pypi
+    - name: sphinxcontrib-mermaid
+      src: pypi
 
 

@@ -192,9 +192,14 @@ Task Dependencies
 
 DFM automatically handles task dependencies. In this flow:
 
-.. code-block:: text
+.. mermaid::
 
-    GenTB → VltCompile → VltRun
+   flowchart LR
+       GenTB --> VltCompile --> VltRun
+       
+       style GenTB fill:#e1f5ff
+       style VltCompile fill:#ffe1e1
+       style VltRun fill:#e1ffe1
 
 Running ``dfm run VltRun`` will automatically:
 
