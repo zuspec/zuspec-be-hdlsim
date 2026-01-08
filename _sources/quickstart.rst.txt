@@ -8,9 +8,9 @@ Prerequisites
 
 * Python 3.9+
 * Zuspec dataclasses
-* PyHDL-IF
+* `PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_
 * HDL simulator (Verilator, VCS, etc.)
-* DV Flow Manager (optional, for automated workflows)
+* `DV Flow Manager <https://dv-flow.github.io>`_ (recommended for automated workflows)
 
 Installation
 ------------
@@ -106,10 +106,11 @@ Create ``test_counter.py``:
         # Assertions would go here
         assert True
 
-Step 3: Create DFM Flow Specification
+Step 3: Create Workflow Specification
 --------------------------------------
 
-Create ``flow.yaml``:
+The recommended approach is to use `DV Flow Manager (DFM) <https://dv-flow.github.io>`_ to automate 
+your build and run workflows. Create ``flow.yaml``:
 
 .. code-block:: yaml
 
@@ -162,7 +163,7 @@ Create ``rtl/counter.sv``:
 Step 5: Generate and Run
 -------------------------
 
-Generate the testbench:
+Using `DFM <https://dv-flow.github.io>`_, generate the testbench:
 
 .. code-block:: bash
 
@@ -173,7 +174,7 @@ This produces:
 * ``generated/CounterTB_hdl.sv`` - HDL module with component instances
 * ``generated/CounterTB_tb.sv`` - Testbench wrapper module
 * ``generated/ClkRstXtor.sv`` - Generated transactor
-* ``generated/ClkRstXtor_api.json`` - PyHDL-IF API definition
+* ``generated/ClkRstXtor_api.json`` - `PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_ API definition
 * ``generated/test_countertb.py`` - Generated test wrapper
 
 Build and run the simulation:
@@ -187,18 +188,18 @@ What Happens at Runtime
 ------------------------
 
 1. Verilator loads ``CounterTB_tb`` module
-2. Initial block registers transactors with PyHDL-IF
+2. Initial block registers transactors with `PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_
 3. Initial block calls ``pyhdl_pytest()``
 4. pytest loads and runs ``test_counter.py``
 5. Test accesses ``tb.clkrst`` which maps to SV transactor
-6. Method calls cross Python/SV boundary via PyHDL-IF
+6. Method calls cross Python/SV boundary via `PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_
 7. Test completes, simulation finishes
 
 Next Steps
 ----------
 
 * :doc:`components` - Learn about component types in detail
-* :doc:`dfm_integration` - Advanced DFM usage
+* :doc:`dfm_integration` - More DFM workflow patterns
 * :doc:`examples` - More complex examples
 * :doc:`api_reference` - API documentation
 
@@ -221,4 +222,4 @@ Troubleshooting
     checker.check_component(CounterTB)
     print(checker.get_errors())
 
-**Runtime errors**: Verify PyHDL-IF registration in generated SV testbench module.
+**Runtime errors**: Verify `PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_ registration in generated SV testbench module.

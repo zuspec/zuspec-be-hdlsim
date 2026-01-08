@@ -49,9 +49,9 @@ simulators like Verilator, VCS, or ModelSim</p></li>
 <li><p><strong>Transactor Generation</strong>: Automatically generate SystemVerilog transactor modules
 from Zuspec component definitions</p></li>
 <li><p><strong>Python/SV Bridge</strong>: Seamless communication between Python test code and SystemVerilog
-through PyHDL-IF</p></li>
-<li><p><strong>DV Flow Integration</strong>: Integrate with DV Flow Manager (DFM) for automated build and
-run workflows</p></li>
+through <a class="reference external" href="https://fvutils.github.io/pyhdl-if">PyHDL-IF</a></p></li>
+<li><p><strong>DV Flow Integration</strong>: Integrate with <a class="reference external" href="https://dv-flow.github.io">DV Flow Manager (DFM)</a>
+for automated build and run workflows</p></li>
 </ul>
 </section>
 <section id="when-to-use-hdlsim-backend">
@@ -74,7 +74,7 @@ run workflows</p></li>
 <li><p>Signal-level connectivity</p></li>
 </ul>
 </dd>
-<dt><strong>Python Domain</strong> (runs in pytest via PyHDL-IF):</dt><dd><ul class="simple">
+<dt><strong>Python Domain</strong> (runs in pytest via <a class="reference external" href="https://fvutils.github.io/pyhdl-if">PyHDL-IF</a>):</dt><dd><ul class="simple">
 <li><p>Top-level test orchestration</p></li>
 <li><p>Test scenarios and sequences</p></li>
 <li><p>Pure Python components</p></li>
@@ -82,7 +82,7 @@ run workflows</p></li>
 </ul>
 </dd>
 </dl>
-<p>These domains communicate through PyHDL-IF’s Python/SV bridge, with the HDLSim backend
+<p>These domains communicate through <a class="reference external" href="https://fvutils.github.io/pyhdl-if">PyHDL-IF</a>’s Python/SV bridge, with the HDLSim backend
 handling the code generation and integration automatically.</p>
 </section>
 <section id="comparison-with-other-zuspec-backends">
@@ -160,8 +160,8 @@ handling the code generation and integration automatically.</p>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dfm_integration.html">DV Flow Manager Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 </ul>
 
@@ -187,7 +187,7 @@ handling the code generation and integration automatically.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;2026, Matthew Ballance.
+      &#169;2025-2026, Matthew Ballance.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>

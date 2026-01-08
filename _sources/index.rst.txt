@@ -6,6 +6,9 @@ existing HDL designs (SystemVerilog/Verilog). It bridges Python-based Zuspec tes
 environments with hardware simulators, allowing you to drive HDL designs from Python 
 tests while executing critical paths in hardware simulation.
 
+The backend integrates with `DV Flow Manager (DFM) <https://dv-flow.github.io>`_ to 
+provide automated, declarative workflows for generating, building, and running HDL testbenches.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -14,7 +17,7 @@ tests while executing critical paths in hardware simulation.
    architecture
    quickstart
    components
-   api_reference
    dfm_integration
+   api_reference
    examples
 

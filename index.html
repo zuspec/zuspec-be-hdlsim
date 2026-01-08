@@ -38,6 +38,8 @@
 existing HDL designs (SystemVerilog/Verilog). It bridges Python-based Zuspec test
 environments with hardware simulators, allowing you to drive HDL designs from Python
 tests while executing critical paths in hardware simulation.</p>
+<p>The backend integrates with <a class="reference external" href="https://dv-flow.github.io">DV Flow Manager (DFM)</a> to
+provide automated, declarative workflows for generating, building, and running HDL testbenches.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -64,7 +66,7 @@ tests while executing critical paths in hardware simulation.</p>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-1-define-your-components">Step 1: Define Your Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-2-create-your-test">Step 2: Create Your Test</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-3-create-dfm-flow-specification">Step 3: Create DFM Flow Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-3-create-workflow-specification">Step 3: Create Workflow Specification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-4-create-rtl">Step 4: Create RTL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-5-generate-and-run">Step 5: Generate and Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#what-happens-at-runtime">What Happens at Runtime</a></li>
@@ -80,13 +82,6 @@ tests while executing critical paths in hardware simulation.</p>
 <li class="toctree-l2"><a class="reference internal" href="components.html#common-patterns">Common Patterns</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#core-modules">Core Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#type-definitions">Type Definitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#see-also">See Also</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="dfm_integration.html">DV Flow Manager Integration</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#gentb-task">GenTB Task</a></li>
@@ -98,6 +93,13 @@ tests while executing critical paths in hardware simulation.</p>
 <li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#debugging">Debugging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#best-practices">Best Practices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#core-modules">Core Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#type-definitions">Type Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#see-also">See Also</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
@@ -143,8 +145,8 @@ tests while executing critical paths in hardware simulation.</p>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dfm_integration.html">DV Flow Manager Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 </ul>
 
@@ -169,7 +171,7 @@ tests while executing critical paths in hardware simulation.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;2026, Matthew Ballance.
+      &#169;2025-2026, Matthew Ballance.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>

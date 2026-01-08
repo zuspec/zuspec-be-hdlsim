@@ -379,8 +379,8 @@ window.addEventListener("load", load);
 </script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Examples" href="examples.html" />
-    <link rel="prev" title="API Reference" href="api_reference.html" />
+    <link rel="next" title="API Reference" href="api_reference.html" />
+    <link rel="prev" title="Components" href="components.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -400,14 +400,16 @@ window.addEventListener("load", load);
             
   <section id="dv-flow-manager-integration">
 <h1>DV Flow Manager Integration<a class="headerlink" href="#dv-flow-manager-integration" title="Link to this heading">¶</a></h1>
-<p>The HDLSim backend integrates with DV Flow Manager (DFM) to automate the build
-and run workflows for HDL testbenches.</p>
+<p>The HDLSim backend integrates with <a class="reference external" href="https://dv-flow.github.io">DV Flow Manager (DFM)</a>
+to automate the build and run workflows for HDL testbenches. <strong>DFM is the recommended
+approach</strong> for managing Zuspec verification workflows, providing declarative task
+orchestration and dependency management.</p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
-<p>DFM provides a declarative, task-based workflow system for verification flows.
-The HDLSim backend provides a <code class="docutils literal notranslate"><span class="pre">GenTB</span></code> task that generates SystemVerilog
-testbenches from Zuspec components, which can then be compiled and run by
-simulator-specific tasks.</p>
+<p><a class="reference external" href="https://dv-flow.github.io">DFM</a> provides a declarative, task-based workflow system
+for verification flows. The HDLSim backend provides a <code class="docutils literal notranslate"><span class="pre">GenTB</span></code> task that generates
+SystemVerilog testbenches from Zuspec components, which can then be compiled and run
+by simulator-specific tasks.</p>
 </section>
 <section id="gentb-task">
 <h2>GenTB Task<a class="headerlink" href="#gentb-task" title="Link to this heading">¶</a></h2>
@@ -434,7 +436,7 @@ simulator-specific tasks.</p>
 <ul class="simple">
 <li><p><strong>sv_files</strong>: List of generated SystemVerilog files</p></li>
 <li><p><strong>py_files</strong>: List of generated Python test files</p></li>
-<li><p><strong>api_files</strong>: PyHDL-IF API definition JSON files</p></li>
+<li><p><strong>api_files</strong>: <a class="reference external" href="https://fvutils.github.io/pyhdl-if">PyHDL-IF</a> API definition JSON files</p></li>
 <li><p><strong>filesets</strong>: Ordered compilation fileset including:</p>
 <ul>
 <li><p>Generated transactor modules</p></li>
@@ -513,7 +515,7 @@ simulator-specific tasks.</p>
 </section>
 <section id="simulator-integration">
 <h2>Simulator Integration<a class="headerlink" href="#simulator-integration" title="Link to this heading">¶</a></h2>
-<p>The generated testbench works with various simulators through DFM tasks.</p>
+<p>The generated testbench works with various simulators through <a class="reference external" href="https://dv-flow.github.io">DFM</a> tasks.</p>
 <section id="verilator">
 <h3>Verilator<a class="headerlink" href="#verilator" title="Link to this heading">¶</a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VltImage</span>
@@ -576,7 +578,7 @@ dfm<span class="w"> </span>run<span class="w"> </span>VltCompile<span class="w">
 </section>
 <section id="task-dependencies">
 <h3>Task Dependencies<a class="headerlink" href="#task-dependencies" title="Link to this heading">¶</a></h3>
-<p>DFM automatically handles task dependencies. In this flow:</p>
+<p><a class="reference external" href="https://dv-flow.github.io">DFM</a> automatically handles task dependencies. In this flow:</p>
 <pre  class="mermaid">
         flowchart LR
     GenTB --&gt; VltCompile --&gt; VltRun
@@ -694,7 +696,7 @@ cat<span class="w"> </span>.dfm/run/GenTB/generated/MyTB_tb.sv
 </section>
 <section id="task-logging">
 <h3>Task Logging<a class="headerlink" href="#task-logging" title="Link to this heading">¶</a></h3>
-<p>DFM provides task execution logs:</p>
+<p><a class="reference external" href="https://dv-flow.github.io">DFM</a> provides task execution logs:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View task log</span>
 dfm<span class="w"> </span>log<span class="w"> </span>GenTB
 
@@ -734,13 +736,13 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;<
 <li><p><strong>Parameterization</strong>: Use task parameters for configurable generation</p></li>
 <li><p><strong>Parallel Execution</strong>: Mark independent tasks as <code class="docutils literal notranslate"><span class="pre">parallel:</span> <span class="pre">true</span></code></p></li>
 <li><p><strong>Timeouts</strong>: Set appropriate timeouts for simulation tasks</p></li>
-<li><p><strong>Logging</strong>: Use DFM logging to track execution and debug issues</p></li>
+<li><p><strong>Logging</strong>: Use <a class="reference external" href="https://dv-flow.github.io">DFM</a> logging to track execution and debug issues</p></li>
 </ol>
 </section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/dv-flow/dv-flow-mgr">DV Flow Manager Documentation</a></p></li>
+<li><p><a class="reference external" href="https://dv-flow.github.io">DV Flow Manager Documentation</a></p></li>
 <li><p><a class="reference internal" href="quickstart.html"><span class="doc">Quick Start</span></a> - Basic workflow example</p></li>
 <li><p><a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> - Complete testbench examples</p></li>
 </ul>
@@ -779,7 +781,6 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;<
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">DV Flow Manager Integration</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gentb-task">GenTB Task</a></li>
@@ -793,6 +794,7 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;<
 <li class="toctree-l2"><a class="reference internal" href="#see-also">See Also</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 </ul>
 
@@ -800,8 +802,8 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;<
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="api_reference.html" title="previous chapter">API Reference</a></li>
-      <li>Next: <a href="examples.html" title="next chapter">Examples</a></li>
+      <li>Previous: <a href="components.html" title="previous chapter">Components</a></li>
+      <li>Next: <a href="api_reference.html" title="next chapter">API Reference</a></li>
   </ul></li>
 </ul>
 </div>
@@ -818,7 +820,7 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;<
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;2026, Matthew Ballance.
+      &#169;2025-2026, Matthew Ballance.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>

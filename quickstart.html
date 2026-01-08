@@ -41,9 +41,9 @@
 <ul class="simple">
 <li><p>Python 3.9+</p></li>
 <li><p>Zuspec dataclasses</p></li>
-<li><p>PyHDL-IF</p></li>
+<li><p><a class="reference external" href="https://fvutils.github.io/pyhdl-if">PyHDL-IF</a></p></li>
 <li><p>HDL simulator (Verilator, VCS, etc.)</p></li>
-<li><p>DV Flow Manager (optional, for automated workflows)</p></li>
+<li><p><a class="reference external" href="https://dv-flow.github.io">DV Flow Manager</a> (recommended for automated workflows)</p></li>
 </ul>
 </section>
 <section id="installation">
@@ -135,9 +135,10 @@
 </pre></div>
 </div>
 </section>
-<section id="step-3-create-dfm-flow-specification">
-<h2>Step 3: Create DFM Flow Specification<a class="headerlink" href="#step-3-create-dfm-flow-specification" title="Link to this heading">¶</a></h2>
-<p>Create <code class="docutils literal notranslate"><span class="pre">flow.yaml</span></code>:</p>
+<section id="step-3-create-workflow-specification">
+<h2>Step 3: Create Workflow Specification<a class="headerlink" href="#step-3-create-workflow-specification" title="Link to this heading">¶</a></h2>
+<p>The recommended approach is to use <a class="reference external" href="https://dv-flow.github.io">DV Flow Manager (DFM)</a> to automate
+your build and run workflows. Create <code class="docutils literal notranslate"><span class="pre">flow.yaml</span></code>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">package</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">counter_tb</span>
 
@@ -186,7 +187,7 @@
 </section>
 <section id="step-5-generate-and-run">
 <h2>Step 5: Generate and Run<a class="headerlink" href="#step-5-generate-and-run" title="Link to this heading">¶</a></h2>
-<p>Generate the testbench:</p>
+<p>Using <a class="reference external" href="https://dv-flow.github.io">DFM</a>, generate the testbench:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dfm<span class="w"> </span>run<span class="w"> </span>GenTB
 </pre></div>
 </div>
@@ -195,7 +196,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">generated/CounterTB_hdl.sv</span></code> - HDL module with component instances</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">generated/CounterTB_tb.sv</span></code> - Testbench wrapper module</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">generated/ClkRstXtor.sv</span></code> - Generated transactor</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">generated/ClkRstXtor_api.json</span></code> - PyHDL-IF API definition</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">generated/ClkRstXtor_api.json</span></code> - <a class="reference external" href="https://fvutils.github.io/pyhdl-if">PyHDL-IF</a> API definition</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">generated/test_countertb.py</span></code> - Generated test wrapper</p></li>
 </ul>
 <p>Build and run the simulation:</p>
@@ -208,11 +209,11 @@ dfm<span class="w"> </span>run<span class="w"> </span>SimRun<span class="w">    
 <h2>What Happens at Runtime<a class="headerlink" href="#what-happens-at-runtime" title="Link to this heading">¶</a></h2>
 <ol class="arabic simple">
 <li><p>Verilator loads <code class="docutils literal notranslate"><span class="pre">CounterTB_tb</span></code> module</p></li>
-<li><p>Initial block registers transactors with PyHDL-IF</p></li>
+<li><p>Initial block registers transactors with <a class="reference external" href="https://fvutils.github.io/pyhdl-if">PyHDL-IF</a></p></li>
 <li><p>Initial block calls <code class="docutils literal notranslate"><span class="pre">pyhdl_pytest()</span></code></p></li>
 <li><p>pytest loads and runs <code class="docutils literal notranslate"><span class="pre">test_counter.py</span></code></p></li>
 <li><p>Test accesses <code class="docutils literal notranslate"><span class="pre">tb.clkrst</span></code> which maps to SV transactor</p></li>
-<li><p>Method calls cross Python/SV boundary via PyHDL-IF</p></li>
+<li><p>Method calls cross Python/SV boundary via <a class="reference external" href="https://fvutils.github.io/pyhdl-if">PyHDL-IF</a></p></li>
 <li><p>Test completes, simulation finishes</p></li>
 </ol>
 </section>
@@ -220,7 +221,7 @@ dfm<span class="w"> </span>run<span class="w"> </span>SimRun<span class="w">    
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="components.html"><span class="doc">Components</span></a> - Learn about component types in detail</p></li>
-<li><p><a class="reference internal" href="dfm_integration.html"><span class="doc">DV Flow Manager Integration</span></a> - Advanced DFM usage</p></li>
+<li><p><a class="reference internal" href="dfm_integration.html"><span class="doc">DV Flow Manager Integration</span></a> - More DFM workflow patterns</p></li>
 <li><p><a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> - More complex examples</p></li>
 <li><p><a class="reference internal" href="api_reference.html"><span class="doc">API Reference</span></a> - API documentation</p></li>
 </ul>
@@ -239,7 +240,7 @@ dfm<span class="w"> </span>run<span class="w"> </span>SimRun<span class="w">    
 <span class="nb">print</span><span class="p">(</span><span class="n">checker</span><span class="o">.</span><span class="n">get_errors</span><span class="p">())</span>
 </pre></div>
 </div>
-<p><strong>Runtime errors</strong>: Verify PyHDL-IF registration in generated SV testbench module.</p>
+<p><strong>Runtime errors</strong>: Verify <a class="reference external" href="https://fvutils.github.io/pyhdl-if">PyHDL-IF</a> registration in generated SV testbench module.</p>
 </section>
 </section>
 
@@ -278,7 +279,7 @@ dfm<span class="w"> </span>run<span class="w"> </span>SimRun<span class="w">    
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-1-define-your-components">Step 1: Define Your Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-2-create-your-test">Step 2: Create Your Test</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#step-3-create-dfm-flow-specification">Step 3: Create DFM Flow Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-create-workflow-specification">Step 3: Create Workflow Specification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-4-create-rtl">Step 4: Create RTL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-5-generate-and-run">Step 5: Generate and Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-happens-at-runtime">What Happens at Runtime</a></li>
@@ -287,8 +288,8 @@ dfm<span class="w"> </span>run<span class="w"> </span>SimRun<span class="w">    
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dfm_integration.html">DV Flow Manager Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 </ul>
 
@@ -314,7 +315,7 @@ dfm<span class="w"> </span>run<span class="w"> </span>SimRun<span class="w">    
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;2026, Matthew Ballance.
+      &#169;2025-2026, Matthew Ballance.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
