@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Zuspec Backend HDLSim'
-copyright = '2026, Matthew Ballance'
+copyright = '2025-2026, Matthew Ballance'
 author = 'Matthew Ballance'
 
 # -- General configuration ---------------------------------------------------

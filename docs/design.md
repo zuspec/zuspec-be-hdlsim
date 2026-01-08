@@ -99,9 +99,9 @@ by the <TbComp> module prior to launching the pytest.
 
 ## DV Flow Manager Integration
 
-The HDL generator must be packaged as a DFM task. A parameter on the task specifies
-the root Zuspec Testbench component typename. This task outputs filesets that specify
-the ordered SV sources to be compiled.
+The HDL generator must be packaged as a `DFM <https://dv-flow.github.io>`_ task. A parameter 
+on the task specifies the root Zuspec Testbench component typename. This task outputs filesets 
+that specify the ordered SV sources to be compiled.
 
 
 # How it's intended to be used
@@ -142,7 +142,7 @@ async def test_reset(zuspec_sim : HDLSim):
 
 ```
 
-The build/run flow will be specified on a DV Flow Manager spec file:
+The build/run flow will be specified on a `DV Flow Manager <https://dv-flow.github.io>`_ spec file:
 
 ```yaml
 package:
@@ -175,5 +175,5 @@ The bulk of your changes must be in the zuspec-be-hdlsim project.
 - pyhdl-if plug-in to understand how the Python/SystemVerilog interface works
 - 'initiator.py' and 'target.py' in the fwvip-wb-zuspec project to see what 
   Zuspec transactors look like
-- dv-flow-mgr to understand what flow.dv/flow.yaml files look like
-- dv-flow-libhdlsim to undestand what DFM tasks look like, and how they're registered
+- `dv-flow-mgr <https://dv-flow.github.io>`_ to understand what flow.dv/flow.yaml files look like
+- dv-flow-libhdlsim to undestand what `DFM <https://dv-flow.github.io>`_ tasks look like, and how they're registered

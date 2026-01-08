@@ -476,4 +476,4 @@ See Also
 
 * :doc:`quickstart` - Getting started guide
 * :doc:`components` - Component types reference
-* :doc:`dfm_integration` - DFM workflow setup
+* :doc:`dfm_integration` - `DFM <https://dv-flow.github.io>`_ workflow setup

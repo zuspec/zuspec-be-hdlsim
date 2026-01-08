@@ -74,7 +74,7 @@ Python runtime factory for creating testbench proxies.
    
    .. py:method:: __init__()
    
-      Initialize factory with PyHDL-IF object registry.
+      Initialize factory with `PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_ object registry.
       
    .. py:method:: create(component_cls: Type, inst_path: str = "top") -> Any
    
@@ -133,11 +133,11 @@ Profile definition for HDL testbenches.
 zuspec.be.hdlsim.json_api_gen
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PyHDL-IF API generation.
+`PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_ API generation.
 
 .. py:class:: TransactorJsonApiGenerator
 
-   Generate PyHDL-IF JSON API definitions from XtorComponent classes.
+   Generate `PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_ JSON API definitions from XtorComponent classes.
    
    .. py:method:: __init__(xtor_cls, module_name: str = "generated_api")
    
@@ -155,11 +155,11 @@ PyHDL-IF API generation.
 zuspec.be.hdlsim.dfm.gen_tb
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-DV Flow Manager integration.
+`DV Flow Manager <https://dv-flow.github.io>`_ integration.
 
 .. py:class:: GenTB
 
-   DFM task for generating HDL testbench from Zuspec component.
+   `DFM <https://dv-flow.github.io>`_ task for generating HDL testbench from Zuspec component.
    
    .. py:method:: run(ctxt) -> TaskDataResult
       :async:

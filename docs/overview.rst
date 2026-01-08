@@ -18,10 +18,10 @@ Key Capabilities
   from Zuspec component definitions
   
 * **Python/SV Bridge**: Seamless communication between Python test code and SystemVerilog 
-  through PyHDL-IF
+  through `PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_
   
-* **DV Flow Integration**: Integrate with DV Flow Manager (DFM) for automated build and 
-  run workflows
+* **DV Flow Integration**: Integrate with `DV Flow Manager (DFM) <https://dv-flow.github.io>`_ 
+  for automated build and run workflows
 
 When to Use HDLSim Backend
 ---------------------------
@@ -43,13 +43,13 @@ The HDLSim backend partitions your testbench into two domains:
   * XtorComponent transactors (generated from Zuspec)
   * Signal-level connectivity
 
-**Python Domain** (runs in pytest via PyHDL-IF):
+**Python Domain** (runs in pytest via `PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_):
   * Top-level test orchestration
   * Test scenarios and sequences
   * Pure Python components
   * High-level transactions
 
-These domains communicate through PyHDL-IF's Python/SV bridge, with the HDLSim backend 
+These domains communicate through `PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_'s Python/SV bridge, with the HDLSim backend 
 handling the code generation and integration automatically.
 
 Comparison with Other Zuspec Backends

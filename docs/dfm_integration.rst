@@ -1,16 +1,18 @@
 DV Flow Manager Integration
 ============================
 
-The HDLSim backend integrates with DV Flow Manager (DFM) to automate the build 
-and run workflows for HDL testbenches.
+The HDLSim backend integrates with `DV Flow Manager (DFM) <https://dv-flow.github.io>`_ 
+to automate the build and run workflows for HDL testbenches. **DFM is the recommended 
+approach** for managing Zuspec verification workflows, providing declarative task 
+orchestration and dependency management.
 
 Overview
 --------
 
-DFM provides a declarative, task-based workflow system for verification flows. 
-The HDLSim backend provides a ``GenTB`` task that generates SystemVerilog 
-testbenches from Zuspec components, which can then be compiled and run by 
-simulator-specific tasks.
+`DFM <https://dv-flow.github.io>`_ provides a declarative, task-based workflow system 
+for verification flows. The HDLSim backend provides a ``GenTB`` task that generates 
+SystemVerilog testbenches from Zuspec components, which can then be compiled and run 
+by simulator-specific tasks.
 
 GenTB Task
 ----------
@@ -42,7 +44,7 @@ The GenTB task produces:
 
 * **sv_files**: List of generated SystemVerilog files
 * **py_files**: List of generated Python test files
-* **api_files**: PyHDL-IF API definition JSON files
+* **api_files**: `PyHDL-IF <https://fvutils.github.io/pyhdl-if>`_ API definition JSON files
 * **filesets**: Ordered compilation fileset including:
   
   - Generated transactor modules
@@ -121,7 +123,7 @@ Complete Example
 Simulator Integration
 ---------------------
 
-The generated testbench works with various simulators through DFM tasks.
+The generated testbench works with various simulators through `DFM <https://dv-flow.github.io>`_ tasks.
 
 Verilator
 ^^^^^^^^^
@@ -190,7 +192,7 @@ Command Line
 Task Dependencies
 ^^^^^^^^^^^^^^^^^
 
-DFM automatically handles task dependencies. In this flow:
+`DFM <https://dv-flow.github.io>`_ automatically handles task dependencies. In this flow:
 
 .. mermaid::
 
@@ -320,7 +322,7 @@ Generated files are placed in the task's run directory:
 Task Logging
 ^^^^^^^^^^^^
 
-DFM provides task execution logs:
+`DFM <https://dv-flow.github.io>`_ provides task execution logs:
 
 .. code-block:: bash
 
@@ -361,11 +363,11 @@ Best Practices
 3. **Parameterization**: Use task parameters for configurable generation
 4. **Parallel Execution**: Mark independent tasks as ``parallel: true``
 5. **Timeouts**: Set appropriate timeouts for simulation tasks
-6. **Logging**: Use DFM logging to track execution and debug issues
+6. **Logging**: Use `DFM <https://dv-flow.github.io>`_ logging to track execution and debug issues
 
 See Also
 --------
 
-* `DV Flow Manager Documentation <https://github.com/dv-flow/dv-flow-mgr>`_
+* `DV Flow Manager Documentation <https://dv-flow.github.io>`_
 * :doc:`quickstart` - Basic workflow example
 * :doc:`examples` - Complete testbench examples
