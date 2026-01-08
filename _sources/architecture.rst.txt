@@ -8,27 +8,28 @@ The Zuspec HDLSim backend implements a dual-domain architecture that partitions
 verification logic between SystemVerilog (for hardware simulation) and Python 
 (for test orchestration).
 
-.. code-block:: text
+.. mermaid::
 
-    ┌─────────────────────────────────────────────────────────┐
-    │ Python Domain (pytest via PyHDL-IF)                     │
-    ├─────────────────────────────────────────────────────────┤
-    │  • Test Orchestration                                   │
-    │  • Top-level Component                                  │
-    │  • Python-only Components                               │
-    │  • Test Sequences & Scenarios                           │
-    └────────────────┬────────────────────────────────────────┘
-                     │ PyHDL-IF Bridge
-                     │ (TLM/API calls)
-    ┌────────────────┴────────────────────────────────────────┐
-    │ SystemVerilog Domain (HDL Simulator)                    │
-    ├─────────────────────────────────────────────────────────┤
-    │  • Generated Testbench Module                           │
-    │  • Generated Transactors (XtorComponent)                │
-    │  • Extern Components (existing HDL)                     │
-    │  • Signal-level Connectivity                            │
-    │  • DUT (Design Under Test)                              │
-    └─────────────────────────────────────────────────────────┘
+   graph TB
+       subgraph Python["Python Domain (pytest via PyHDL-IF)"]
+           PY1["• Test Orchestration"]
+           PY2["• Top-level Component"]
+           PY3["• Python-only Components"]
+           PY4["• Test Sequences & Scenarios"]
+       end
+       
+       subgraph SV["SystemVerilog Domain (HDL Simulator)"]
+           SV1["• Generated Testbench Module"]
+           SV2["• Generated Transactors (XtorComponent)"]
+           SV3["• Extern Components (existing HDL)"]
+           SV4["• Signal-level Connectivity"]
+           SV5["• DUT (Design Under Test)"]
+       end
+       
+       Python <-->|"PyHDL-IF Bridge<br/>(TLM/API calls)"| SV
+       
+       style Python fill:#e1f5ff
+       style SV fill:#ffe1f5
 
 Component Classification
 ------------------------
@@ -122,25 +123,59 @@ Generation Flow
 Build Time (GenTB Task)
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. **Profile Checking**: HDLTestbenchChecker validates domain separation rules
-2. **SV Generation**: 
-   
-   * Generate transactor modules (via zuspec-be-sv)
-   * Generate testbench wrapper module
-   * Generate PyHDL-IF API definitions (JSON)
-   
-3. **API Generation**: PyHDL-IF generates SV/Python API glue code
-4. **Fileset Output**: Produce ordered compilation fileset
+.. mermaid::
+
+   flowchart TD
+       Start[Zuspec Component Class] --> Check[Profile Checking]
+       Check --> |Valid| SVGen[SV Generation]
+       Check --> |Errors| Fail[Report Errors]
+       
+       SVGen --> Trans[Generate Transactor Modules<br/>via zuspec-be-sv]
+       SVGen --> TBMod[Generate Testbench Wrapper Module]
+       SVGen --> API[Generate PyHDL-IF API Definitions JSON]
+       
+       Trans --> APIGen[PyHDL-IF API Generation]
+       API --> APIGen
+       APIGen --> Glue[Generate SV/Python API Glue Code]
+       
+       TBMod --> Fileset[Produce Ordered Compilation Fileset]
+       Glue --> Fileset
+       
+       Fileset --> Done[Ready for Compilation]
+       
+       style Check fill:#ffffcc
+       style SVGen fill:#ccffcc
+       style APIGen fill:#ccccff
+       style Done fill:#ccffcc
 
 Runtime (Simulation)
 ^^^^^^^^^^^^^^^^^^^^
 
-1. **Simulator Launch**: HDL simulator loads compiled testbench
-2. **Registration**: SV testbench registers transactor APIs with PyHDL-IF
-3. **pytest Launch**: SV calls ``pyhdl_pytest()`` to start Python tests
-4. **Factory Configuration**: HDLSimRuntime intercepts testbench construction
-5. **Proxy Creation**: PyTestbenchFactory creates proxies to SV components
-6. **Test Execution**: pytest runs, communicating with SV via proxies
+.. mermaid::
+
+   sequenceDiagram
+       participant Sim as HDL Simulator
+       participant TB as Testbench Module
+       participant PyHDL as PyHDL-IF
+       participant Runtime as HDLSimRuntime
+       participant Pytest as pytest
+       
+       Sim->>TB: Load & Initialize
+       TB->>PyHDL: Register Transactor APIs
+       TB->>Runtime: configure_objfactory("MyTB")
+       Runtime->>Runtime: Patch MyTB.__init__
+       TB->>Pytest: pyhdl_pytest()
+       Pytest->>Runtime: Create MyTB instance
+       Runtime->>PyHDL: Lookup registered components
+       PyHDL-->>Runtime: Return SV proxies
+       Runtime-->>Pytest: Return TestbenchProxy
+       Pytest->>Runtime: Call test methods
+       Runtime->>PyHDL: Forward to SV APIs
+       PyHDL->>TB: Execute in simulator
+       TB-->>PyHDL: Return results
+       PyHDL-->>Runtime: Return to Python
+       Runtime-->>Pytest: Complete test
+       Pytest->>Sim: $finish
 
 Code Generation Details
 -----------------------
