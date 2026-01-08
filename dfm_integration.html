@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>DV Flow Manager Integration &#8212; Zuspec Backend HDLSim  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="API Reference" href="api_reference.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="dv-flow-manager-integration">
+<h1>DV Flow Manager Integration<a class="headerlink" href="#dv-flow-manager-integration" title="Link to this heading">¶</a></h1>
+<p>The HDLSim backend integrates with DV Flow Manager (DFM) to automate the build
+and run workflows for HDL testbenches.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>DFM provides a declarative, task-based workflow system for verification flows.
+The HDLSim backend provides a <code class="docutils literal notranslate"><span class="pre">GenTB</span></code> task that generates SystemVerilog
+testbenches from Zuspec components, which can then be compiled and run by
+simulator-specific tasks.</p>
+</section>
+<section id="gentb-task">
+<h2>GenTB Task<a class="headerlink" href="#gentb-task" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">GenTB</span></code> task is the primary integration point with DFM.</p>
+<section id="task-definition">
+<h3>Task Definition<a class="headerlink" href="#task-definition" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">zuspec.be.hdlsim.dfm</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenTB</span>
+</pre></div>
+</div>
+<p><strong>Module</strong>: <code class="docutils literal notranslate"><span class="pre">zuspec.be.hdlsim.dfm.gen_tb</span></code></p>
+<p><strong>Class</strong>: <code class="docutils literal notranslate"><span class="pre">GenTB</span></code></p>
+</section>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h3>
+<ul>
+<li><p><strong>class_name</strong> (required): Fully qualified Python path to testbench component class</p>
+<p>Example: <code class="docutils literal notranslate"><span class="pre">&quot;my_package.testbenches.CounterTB&quot;</span></code></p>
+</li>
+</ul>
+</section>
+<section id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading">¶</a></h3>
+<p>The GenTB task produces:</p>
+<ul class="simple">
+<li><p><strong>sv_files</strong>: List of generated SystemVerilog files</p></li>
+<li><p><strong>py_files</strong>: List of generated Python test files</p></li>
+<li><p><strong>api_files</strong>: PyHDL-IF API definition JSON files</p></li>
+<li><p><strong>filesets</strong>: Ordered compilation fileset including:</p>
+<ul>
+<li><p>Generated transactor modules</p></li>
+<li><p>Generated testbench modules</p></li>
+<li><p>Extern component sources</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="task-result-data">
+<h3>Task Result Data<a class="headerlink" href="#task-result-data" title="Link to this heading">¶</a></h3>
+<p>The task result includes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;generated_files&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;sv&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;path/to/TB_tb.sv&quot;</span><span class="p">,</span> <span class="s2">&quot;path/to/TB_hdl.sv&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="s2">&quot;py&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;path/to/test_tb.py&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;api&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;path/to/Xtor_api.json&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;top_module&quot;</span><span class="p">:</span> <span class="s2">&quot;TB_tb&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;filesets&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="flow-specification-example">
+<h2>Flow Specification Example<a class="headerlink" href="#flow-specification-example" title="Link to this heading">¶</a></h2>
+<section id="complete-example">
+<h3>Complete Example<a class="headerlink" href="#complete-example" title="Link to this heading">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">package</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wishbone_tb</span>
+
+<span class="w">  </span><span class="c1"># Define external dependencies</span>
+<span class="w">  </span><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fwvip-wb-zuspec</span>
+<span class="w">    </span><span class="nt">git</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/example/fwvip-wb-zuspec.git</span>
+
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+
+<span class="w">  </span><span class="c1"># Generate testbench from Zuspec</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GenTB</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zuspec.be.hdlsim.dfm.GenTB</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">class_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wb_testbench.WishboneTB</span>
+
+<span class="w">  </span><span class="c1"># Compile with Verilator</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VltCompile</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdlsim.vlt.SimImage</span>
+<span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">GenTB</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">top_module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">WishboneTB_tb</span>
+<span class="w">      </span><span class="nt">vlt_flags</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--trace</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--trace-structs</span>
+
+<span class="w">  </span><span class="c1"># Run simulation</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VltRun</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdlsim.vlt.SimRun</span>
+<span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">VltCompile</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">plusargs</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pyhdl.pytest=test_wishbone.py::test_basic_write</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10000</span>
+
+<span class="w">  </span><span class="c1"># Run full test suite</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VltRunAll</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdlsim.vlt.SimRun</span>
+<span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">VltCompile</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">plusargs</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pyhdl.pytest=test_wishbone.py</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60000</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="simulator-integration">
+<h2>Simulator Integration<a class="headerlink" href="#simulator-integration" title="Link to this heading">¶</a></h2>
+<p>The generated testbench works with various simulators through DFM tasks.</p>
+<section id="verilator">
+<h3>Verilator<a class="headerlink" href="#verilator" title="Link to this heading">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VltImage</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdlsim.vlt.SimImage</span>
+<span class="w">  </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">GenTB</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">top_module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ tasks.GenTB.outputs.top_module }}</span>
+<span class="w">    </span><span class="nt">sources</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ tasks.GenTB.outputs.filesets }}</span>
+<span class="w">    </span><span class="nt">vlt_flags</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--trace</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--trace-fst</span>
+</pre></div>
+</div>
+</section>
+<section id="vcs">
+<h3>VCS<a class="headerlink" href="#vcs" title="Link to this heading">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VcsImage</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdlsim.vcs.SimImage</span>
+<span class="w">  </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">GenTB</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">top_module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ tasks.GenTB.outputs.top_module }}</span>
+<span class="w">    </span><span class="nt">sources</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ tasks.GenTB.outputs.filesets }}</span>
+<span class="w">    </span><span class="nt">vcs_flags</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-debug_access+all</span>
+</pre></div>
+</div>
+</section>
+<section id="questa-modelsim">
+<h3>Questa/ModelSim<a class="headerlink" href="#questa-modelsim" title="Link to this heading">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">QuestaImage</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdlsim.questa.SimImage</span>
+<span class="w">  </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">GenTB</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">top_module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ tasks.GenTB.outputs.top_module }}</span>
+<span class="w">    </span><span class="nt">sources</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ tasks.GenTB.outputs.filesets }}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="running-tasks">
+<h2>Running Tasks<a class="headerlink" href="#running-tasks" title="Link to this heading">¶</a></h2>
+<section id="command-line">
+<h3>Command Line<a class="headerlink" href="#command-line" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate testbench only</span>
+dfm<span class="w"> </span>run<span class="w"> </span>GenTB
+
+<span class="c1"># Compile simulator image</span>
+dfm<span class="w"> </span>run<span class="w"> </span>VltCompile
+
+<span class="c1"># Run specific test</span>
+dfm<span class="w"> </span>run<span class="w"> </span>VltRun
+
+<span class="c1"># Run all tests</span>
+dfm<span class="w"> </span>run<span class="w"> </span>VltRunAll
+
+<span class="c1"># Run multiple tasks</span>
+dfm<span class="w"> </span>run<span class="w"> </span>VltCompile<span class="w"> </span>VltRun
+</pre></div>
+</div>
+</section>
+<section id="task-dependencies">
+<h3>Task Dependencies<a class="headerlink" href="#task-dependencies" title="Link to this heading">¶</a></h3>
+<p>DFM automatically handles task dependencies. In this flow:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>GenTB → VltCompile → VltRun
+</pre></div>
+</div>
+<p>Running <code class="docutils literal notranslate"><span class="pre">dfm</span> <span class="pre">run</span> <span class="pre">VltRun</span></code> will automatically:</p>
+<ol class="arabic simple">
+<li><p>Check if GenTB outputs are available</p></li>
+<li><p>Run GenTB if needed</p></li>
+<li><p>Check if VltCompile outputs are available</p></li>
+<li><p>Run VltCompile if needed</p></li>
+<li><p>Run VltRun</p></li>
+</ol>
+</section>
+</section>
+<section id="advanced-patterns">
+<h2>Advanced Patterns<a class="headerlink" href="#advanced-patterns" title="Link to this heading">¶</a></h2>
+<section id="parametric-generation">
+<h3>Parametric Generation<a class="headerlink" href="#parametric-generation" title="Link to this heading">¶</a></h3>
+<p>Generate multiple testbench variants:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tasks</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GenTB_Config1</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zuspec.be.hdlsim.dfm.GenTB</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">class_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tb.MyTB</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">data_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GenTB_Config2</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zuspec.be.hdlsim.dfm.GenTB</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">class_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tb.MyTB</span>
+<span class="w">    </span><span class="nt">params</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">data_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+</pre></div>
+</div>
+</section>
+<section id="multi-test-execution">
+<h3>Multi-Test Execution<a class="headerlink" href="#multi-test-execution" title="Link to this heading">¶</a></h3>
+<p>Run different test scenarios:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tasks</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TestBasic</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdlsim.vlt.SimRun</span>
+<span class="w">  </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">VltCompile</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">plusargs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">pyhdl.pytest=tests/test_basic.py</span><span class="p p-Indicator">]</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TestStress</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdlsim.vlt.SimRun</span>
+<span class="w">  </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">VltCompile</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">plusargs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">pyhdl.pytest=tests/test_stress.py</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120000</span>
+</pre></div>
+</div>
+</section>
+<section id="regression-testing">
+<h3>Regression Testing<a class="headerlink" href="#regression-testing" title="Link to this heading">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tasks</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Regression</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dfm.TaskGroup</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TestBasic</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TestStress</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TestCornerCases</span>
+<span class="w">  </span><span class="nt">parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">fail_fast</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="working-with-filesets">
+<h2>Working with Filesets<a class="headerlink" href="#working-with-filesets" title="Link to this heading">¶</a></h2>
+<section id="fileset-structure">
+<h3>Fileset Structure<a class="headerlink" href="#fileset-structure" title="Link to this heading">¶</a></h3>
+<p>GenTB outputs filesets in compilation order:</p>
+<ol class="arabic simple">
+<li><p>Package files (if any)</p></li>
+<li><p>Extern component sources</p></li>
+<li><p>Generated transactor modules</p></li>
+<li><p>Generated testbench HDL module</p></li>
+<li><p>Generated testbench wrapper module</p></li>
+</ol>
+</section>
+<section id="customizing-filesets">
+<h3>Customizing Filesets<a class="headerlink" href="#customizing-filesets" title="Link to this heading">¶</a></h3>
+<p>You can add additional files to the compilation:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VltCompile</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdlsim.vlt.SimImage</span>
+<span class="w">  </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">GenTB</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">top_module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ tasks.GenTB.outputs.top_module }}</span>
+<span class="w">    </span><span class="nt">sources</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ tasks.GenTB.outputs.filesets }}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">additional/utility.sv</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">additional/assertions.sv</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="debugging">
+<h2>Debugging<a class="headerlink" href="#debugging" title="Link to this heading">¶</a></h2>
+<section id="generated-file-inspection">
+<h3>Generated File Inspection<a class="headerlink" href="#generated-file-inspection" title="Link to this heading">¶</a></h3>
+<p>Generated files are placed in the task’s run directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View generated files</span>
+ls<span class="w"> </span>-la<span class="w"> </span>.dfm/run/GenTB/generated/
+
+<span class="c1"># Inspect testbench module</span>
+cat<span class="w"> </span>.dfm/run/GenTB/generated/MyTB_tb.sv
+</pre></div>
+</div>
+</section>
+<section id="task-logging">
+<h3>Task Logging<a class="headerlink" href="#task-logging" title="Link to this heading">¶</a></h3>
+<p>DFM provides task execution logs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View task log</span>
+dfm<span class="w"> </span>log<span class="w"> </span>GenTB
+
+<span class="c1"># Tail running task</span>
+dfm<span class="w"> </span>log<span class="w"> </span>-f<span class="w"> </span>VltRun
+</pre></div>
+</div>
+</section>
+<section id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">¶</a></h3>
+<p>If GenTB fails, check:</p>
+<ol class="arabic simple">
+<li><p><strong>Profile Validation</strong>: Ensure component follows HDLTestbench profile rules</p></li>
+<li><p><strong>Import Errors</strong>: Verify testbench class can be imported</p></li>
+<li><p><strong>Dependencies</strong>: Check all required packages are installed</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test import manually</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from my_package import MyTB; print(&#39;OK&#39;)&quot;</span>
+
+<span class="c1"># Check profile</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">from my_package import MyTB</span>
+<span class="s2">from zuspec.be.hdlsim.checker import HDLTestbenchChecker</span>
+<span class="s2">checker = HDLTestbenchChecker()</span>
+<span class="s2">checker.check_component(MyTB)</span>
+<span class="s2">print(checker.get_errors())</span>
+<span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Task Naming</strong>: Use descriptive names (GenTB_ProjectName, VltRun_TestName)</p></li>
+<li><p><strong>Dependencies</strong>: Always specify <code class="docutils literal notranslate"><span class="pre">needs</span></code> to ensure correct execution order</p></li>
+<li><p><strong>Parameterization</strong>: Use task parameters for configurable generation</p></li>
+<li><p><strong>Parallel Execution</strong>: Mark independent tasks as <code class="docutils literal notranslate"><span class="pre">parallel:</span> <span class="pre">true</span></code></p></li>
+<li><p><strong>Timeouts</strong>: Set appropriate timeouts for simulation tasks</p></li>
+<li><p><strong>Logging</strong>: Use DFM logging to track execution and debug issues</p></li>
+</ol>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/dv-flow/dv-flow-mgr">DV Flow Manager Documentation</a></p></li>
+<li><p><a class="reference internal" href="quickstart.html"><span class="doc">Quick Start</span></a> - Basic workflow example</p></li>
+<li><p><a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> - Complete testbench examples</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Zuspec Backend HDLSim</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DV Flow Manager Integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gentb-task">GenTB Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#flow-specification-example">Flow Specification Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#simulator-integration">Simulator Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-tasks">Running Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-patterns">Advanced Patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-filesets">Working with Filesets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="api_reference.html" title="previous chapter">API Reference</a></li>
+      <li>Next: <a href="examples.html" title="next chapter">Examples</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Matthew Ballance.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/dfm_integration.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

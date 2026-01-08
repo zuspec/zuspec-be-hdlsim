@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Examples &#8212; Zuspec Backend HDLSim  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="DV Flow Manager Integration" href="dfm_integration.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h1>
+<p>This page provides complete, working examples demonstrating various HDLSim
+backend use cases.</p>
+<section id="example-1-simple-counter">
+<h2>Example 1: Simple Counter<a class="headerlink" href="#example-1-simple-counter" title="Link to this heading">¶</a></h2>
+<p>A basic counter testbench demonstrating the fundamentals.</p>
+<section id="rtl-counter-sv">
+<h3>RTL (counter.sv)<a class="headerlink" href="#rtl-counter-sv" title="Link to this heading">¶</a></h3>
+<div class="highlight-systemverilog notranslate"><div class="highlight"><pre><span></span><span class="k">module</span><span class="w"> </span><span class="n">counter</span><span class="w"> </span><span class="p">#(</span>
+<span class="w">    </span><span class="k">parameter</span><span class="w"> </span><span class="n">WIDTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span>
+<span class="p">)</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w">             </span><span class="n">clock</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w">             </span><span class="n">reset</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w">             </span><span class="n">enable</span><span class="p">,</span>
+<span class="w">    </span><span class="k">output</span><span class="w"> </span><span class="kt">logic</span><span class="w"> </span><span class="p">[</span><span class="n">WIDTH</span><span class="o">-</span><span class="mi">1</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">count</span>
+<span class="p">);</span>
+<span class="w">    </span><span class="kt">logic</span><span class="w"> </span><span class="p">[</span><span class="n">WIDTH</span><span class="o">-</span><span class="mi">1</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">count_reg</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">always_ff</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clock</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">reset</span><span class="p">)</span>
+<span class="w">            </span><span class="n">count_reg</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="m">&#39;0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">enable</span><span class="p">)</span>
+<span class="w">            </span><span class="n">count_reg</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">count_reg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">end</span>
+
+<span class="w">    </span><span class="k">assign</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">count_reg</span><span class="p">;</span>
+<span class="k">endmodule</span>
+</pre></div>
+</div>
+</section>
+<section id="testbench-counter-tb-py">
+<h3>Testbench (counter_tb.py)<a class="headerlink" href="#testbench-counter-tb-py" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">zuspec.dataclasses</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">zdc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">zuspec.dataclasses.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extern</span><span class="p">,</span> <span class="n">XtorComponent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">zuspec.dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">Signal</span><span class="p">,</span> <span class="n">annotation_fileset</span>
+
+<span class="c1"># Clock/reset protocol</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClkRstIf</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">reset_assert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assert reset.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">reset_deassert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deassert reset.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wait_cycles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wait N clock cycles.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+<span class="c1"># Clock/reset transactor</span>
+<span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClkRstXtor</span><span class="p">(</span><span class="n">XtorComponent</span><span class="p">[</span><span class="n">ClkRstIf</span><span class="p">]):</span>
+    <span class="n">clock</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">reset</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+
+<span class="c1"># Counter wrapper</span>
+<span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CounterDut</span><span class="p">(</span><span class="n">zdc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="n">Extern</span><span class="p">):</span>
+    <span class="n">clock</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">reset</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">enable</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">count</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+
+    <span class="nd">@annotation_fileset</span><span class="p">(</span><span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;rtl/counter.sv&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<span class="c1"># Control transactor protocol</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CounterControlIf</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">set_enable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set enable signal.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read current count value.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+<span class="c1"># Control transactor</span>
+<span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CounterControl</span><span class="p">(</span><span class="n">XtorComponent</span><span class="p">[</span><span class="n">CounterControlIf</span><span class="p">]):</span>
+    <span class="n">enable</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">count</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+
+<span class="c1"># Top-level testbench</span>
+<span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CounterTB</span><span class="p">(</span><span class="n">zdc</span><span class="o">.</span><span class="n">Component</span><span class="p">):</span>
+    <span class="n">clkrst</span><span class="p">:</span> <span class="n">ClkRstXtor</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+    <span class="n">dut</span><span class="p">:</span> <span class="n">CounterDut</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+    <span class="n">ctrl</span><span class="p">:</span> <span class="n">CounterControl</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__bind__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">clock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dut</span><span class="o">.</span><span class="n">clock</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dut</span><span class="o">.</span><span class="n">reset</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctrl</span><span class="o">.</span><span class="n">enable</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dut</span><span class="o">.</span><span class="n">enable</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dut</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctrl</span><span class="o">.</span><span class="n">count</span><span class="p">),</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="test-test-counter-py">
+<h3>Test (test_counter.py)<a class="headerlink" href="#test-test-counter-py" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">tb</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">counter_tb</span><span class="w"> </span><span class="kn">import</span> <span class="n">CounterTB</span>
+    <span class="k">return</span> <span class="n">CounterTB</span><span class="p">()</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_counter_reset</span><span class="p">(</span><span class="n">tb</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test counter reset behavior.&quot;&quot;&quot;</span>
+    <span class="c1"># Reset the counter</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset_assert</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">wait_cycles</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset_deassert</span><span class="p">()</span>
+
+    <span class="c1"># Check count is 0</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">ctrl</span><span class="o">.</span><span class="n">get_count</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_counter_enable</span><span class="p">(</span><span class="n">tb</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test counter counting.&quot;&quot;&quot;</span>
+    <span class="c1"># Reset and enable</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset_assert</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">wait_cycles</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset_deassert</span><span class="p">()</span>
+
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">ctrl</span><span class="o">.</span><span class="n">set_enable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">wait_cycles</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="c1"># Count should be 10</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">ctrl</span><span class="o">.</span><span class="n">get_count</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">10</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_counter_disable</span><span class="p">(</span><span class="n">tb</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test counter stops when disabled.&quot;&quot;&quot;</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset_assert</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">wait_cycles</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset_deassert</span><span class="p">()</span>
+
+    <span class="c1"># Count for a while</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">ctrl</span><span class="o">.</span><span class="n">set_enable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">wait_cycles</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="c1"># Disable and wait</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">ctrl</span><span class="o">.</span><span class="n">set_enable</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">count_before</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">ctrl</span><span class="o">.</span><span class="n">get_count</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">wait_cycles</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">count_after</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">ctrl</span><span class="o">.</span><span class="n">get_count</span><span class="p">()</span>
+
+    <span class="c1"># Count should not change</span>
+    <span class="k">assert</span> <span class="n">count_before</span> <span class="o">==</span> <span class="n">count_after</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="example-2-wishbone-bus">
+<h2>Example 2: Wishbone Bus<a class="headerlink" href="#example-2-wishbone-bus" title="Link to this heading">¶</a></h2>
+<p>A more complex example with a standard bus interface.</p>
+<section id="bus-protocol">
+<h3>Bus Protocol<a class="headerlink" href="#bus-protocol" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">WishboneInitiatorIf</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wishbone bus initiator protocol.&quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mh">0xF</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Single write transaction.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Single read transaction.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">write_burst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Burst write.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_burst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Burst read.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="wishbone-transactor">
+<h3>Wishbone Transactor<a class="headerlink" href="#wishbone-transactor" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WishboneInitiator</span><span class="p">(</span><span class="n">XtorComponent</span><span class="p">[</span><span class="n">WishboneInitiatorIf</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wishbone initiator transactor.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Clock and reset</span>
+    <span class="n">clock</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">reset</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+
+    <span class="c1"># Wishbone signals</span>
+    <span class="n">wb_adr</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_dat_o</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_dat_i</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">wb_sel</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_cyc</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_stb</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_we</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_ack</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">wb_err</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">wb_rty</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="memory-dut">
+<h3>Memory DUT<a class="headerlink" href="#memory-dut" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WishboneMemory</span><span class="p">(</span><span class="n">zdc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="n">Extern</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wishbone memory module.&quot;&quot;&quot;</span>
+
+    <span class="n">clock</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">reset</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+
+    <span class="n">wb_adr</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">wb_dat_i</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">wb_dat_o</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_sel</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">wb_cyc</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">wb_stb</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">wb_we</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">wb_ack</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_err</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+
+    <span class="nd">@annotation_fileset</span><span class="p">(</span>
+        <span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;rtl/wb_memory.sv&quot;</span><span class="p">],</span>
+        <span class="n">incdirs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;rtl/include&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="testbench">
+<h3>Testbench<a class="headerlink" href="#testbench" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WishboneTB</span><span class="p">(</span><span class="n">zdc</span><span class="o">.</span><span class="n">Component</span><span class="p">):</span>
+    <span class="n">clkrst</span><span class="p">:</span> <span class="n">ClkRstXtor</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+    <span class="n">initiator</span><span class="p">:</span> <span class="n">WishboneInitiator</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+    <span class="n">memory</span><span class="p">:</span> <span class="n">WishboneMemory</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__bind__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="c1"># Clock/reset</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">clock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">clock</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">clock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">clock</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">reset</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">reset</span><span class="p">),</span>
+
+            <span class="c1"># Wishbone bus</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">wb_adr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">wb_adr</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">wb_dat_o</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">wb_dat_i</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">wb_dat_o</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">wb_dat_i</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">wb_sel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">wb_sel</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">wb_cyc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">wb_cyc</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">wb_stb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">wb_stb</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">wb_we</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">wb_we</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">wb_ack</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">wb_ack</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">wb_err</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">wb_err</span><span class="p">),</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="tests">
+<h3>Tests<a class="headerlink" href="#tests" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_wb_basic_write_read</span><span class="p">(</span><span class="n">tb</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test basic write and read.&quot;&quot;&quot;</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset_pulse</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="c1"># Write data</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">,</span> <span class="mh">0xDEADBEEF</span><span class="p">)</span>
+
+    <span class="c1"># Read back</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">data</span> <span class="o">==</span> <span class="mh">0xDEADBEEF</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_wb_burst_write</span><span class="p">(</span><span class="n">tb</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test burst write operation.&quot;&quot;&quot;</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset_pulse</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="n">test_data</span> <span class="o">=</span> <span class="p">[</span><span class="mh">0x100</span><span class="p">,</span> <span class="mh">0x200</span><span class="p">,</span> <span class="mh">0x300</span><span class="p">,</span> <span class="mh">0x400</span><span class="p">]</span>
+    <span class="n">base_addr</span> <span class="o">=</span> <span class="mh">0x2000</span>
+
+    <span class="c1"># Burst write</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">write_burst</span><span class="p">(</span><span class="n">base_addr</span><span class="p">,</span> <span class="n">test_data</span><span class="p">)</span>
+
+    <span class="c1"># Verify each location</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_data</span><span class="p">):</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">initiator</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">base_addr</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">actual</span> <span class="o">==</span> <span class="n">expected</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="example-3-multi-component-system">
+<h2>Example 3: Multi-Component System<a class="headerlink" href="#example-3-multi-component-system" title="Link to this heading">¶</a></h2>
+<p>Demonstrates a more complex system with multiple components and monitors.</p>
+<section id="system-architecture">
+<h3>System Architecture<a class="headerlink" href="#system-architecture" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UartTx</span><span class="p">(</span><span class="n">zdc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="n">Extern</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;UART transmitter.&quot;&quot;&quot;</span>
+    <span class="n">clock</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">reset</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">tx_data</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">tx_valid</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">tx_ready</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">tx_out</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+
+    <span class="nd">@annotation_fileset</span><span class="p">(</span><span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;rtl/uart_tx.sv&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">pass</span>
+
+<span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UartRx</span><span class="p">(</span><span class="n">zdc</span><span class="o">.</span><span class="n">Component</span><span class="p">,</span> <span class="n">Extern</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;UART receiver.&quot;&quot;&quot;</span>
+    <span class="n">clock</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">reset</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">rx_in</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">rx_data</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">rx_valid</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">rx_ready</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+
+    <span class="nd">@annotation_fileset</span><span class="p">(</span><span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;rtl/uart_rx.sv&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="driver-and-monitor">
+<h3>Driver and Monitor<a class="headerlink" href="#driver-and-monitor" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Driver protocol</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UartDriverIf</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="c1"># Monitor protocol</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UartMonitorIf</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">recv_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">recv_packet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span> <span class="o">...</span>
+
+<span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UartDriver</span><span class="p">(</span><span class="n">XtorComponent</span><span class="p">[</span><span class="n">UartDriverIf</span><span class="p">]):</span>
+    <span class="n">clock</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">tx_data</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">tx_valid</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+    <span class="n">tx_ready</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+
+<span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UartMonitor</span><span class="p">(</span><span class="n">XtorComponent</span><span class="p">[</span><span class="n">UartMonitorIf</span><span class="p">]):</span>
+    <span class="n">clock</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">rx_data</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">rx_valid</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">input</span><span class="p">()</span>
+    <span class="n">rx_ready</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="python-scoreboard">
+<h3>Python Scoreboard<a class="headerlink" href="#python-scoreboard" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UartScoreboard</span><span class="p">(</span><span class="n">zdc</span><span class="o">.</span><span class="n">Component</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pure Python scoreboard component.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sent_packets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recv_packets</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">record_sent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Record sent packet.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sent_packets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">record_received</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Record received packet.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recv_packets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verify sent == received.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sent_packets</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv_packets</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-testbench">
+<h3>Complete Testbench<a class="headerlink" href="#complete-testbench" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@zdc</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UartLoopbackTB</span><span class="p">(</span><span class="n">zdc</span><span class="o">.</span><span class="n">Component</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;UART loopback testbench.&quot;&quot;&quot;</span>
+
+    <span class="n">clkrst</span><span class="p">:</span> <span class="n">ClkRstXtor</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+    <span class="n">driver</span><span class="p">:</span> <span class="n">UartDriver</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+    <span class="n">monitor</span><span class="p">:</span> <span class="n">UartMonitor</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+    <span class="n">tx</span><span class="p">:</span> <span class="n">UartTx</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+    <span class="n">rx</span><span class="p">:</span> <span class="n">UartRx</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+    <span class="n">scoreboard</span><span class="p">:</span> <span class="n">UartScoreboard</span> <span class="o">=</span> <span class="n">zdc</span><span class="o">.</span><span class="n">inst</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__bind__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="c1"># Clock/reset</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">clock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">clock</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">clock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">clock</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">clock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tx</span><span class="o">.</span><span class="n">clock</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">clock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rx</span><span class="o">.</span><span class="n">clock</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tx</span><span class="o">.</span><span class="n">reset</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rx</span><span class="o">.</span><span class="n">reset</span><span class="p">),</span>
+
+            <span class="c1"># Driver -&gt; TX</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">tx_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tx</span><span class="o">.</span><span class="n">tx_data</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">tx_valid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tx</span><span class="o">.</span><span class="n">tx_valid</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tx</span><span class="o">.</span><span class="n">tx_ready</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">tx_ready</span><span class="p">),</span>
+
+            <span class="c1"># TX -&gt; RX (serial)</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tx</span><span class="o">.</span><span class="n">tx_out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rx</span><span class="o">.</span><span class="n">rx_in</span><span class="p">),</span>
+
+            <span class="c1"># RX -&gt; Monitor</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rx</span><span class="o">.</span><span class="n">rx_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">rx_data</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rx</span><span class="o">.</span><span class="n">rx_valid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">rx_valid</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">rx_ready</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rx</span><span class="o">.</span><span class="n">rx_ready</span><span class="p">),</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-test">
+<h3>Advanced Test<a class="headerlink" href="#advanced-test" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_uart_loopback_with_scoreboard</span><span class="p">(</span><span class="n">tb</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test UART loopback with scoreboard checking.&quot;&quot;&quot;</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset_pulse</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="c1"># Test data</span>
+    <span class="n">test_packets</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">b</span><span class="s2">&quot;Hello&quot;</span><span class="p">,</span>
+        <span class="sa">b</span><span class="s2">&quot;World&quot;</span><span class="p">,</span>
+        <span class="sa">b</span><span class="s2">&quot;Zuspec HDLSim!&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Send and monitor in parallel</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">sender</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">packet</span> <span class="ow">in</span> <span class="n">test_packets</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">driver</span><span class="o">.</span><span class="n">send_packet</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+            <span class="n">tb</span><span class="o">.</span><span class="n">scoreboard</span><span class="o">.</span><span class="n">record_sent</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">receiver</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">test_packets</span><span class="p">:</span>
+            <span class="n">packet</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">recv_packet</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">packet</span><span class="p">))</span>
+            <span class="n">tb</span><span class="o">.</span><span class="n">scoreboard</span><span class="o">.</span><span class="n">record_received</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+
+    <span class="c1"># Run concurrently</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">sender</span><span class="p">(),</span> <span class="n">receiver</span><span class="p">())</span>
+
+    <span class="c1"># Check scoreboard</span>
+    <span class="k">assert</span> <span class="n">tb</span><span class="o">.</span><span class="n">scoreboard</span><span class="o">.</span><span class="n">check</span><span class="p">(),</span> <span class="s2">&quot;Mismatch detected!&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="quickstart.html"><span class="doc">Quick Start</span></a> - Getting started guide</p></li>
+<li><p><a class="reference internal" href="components.html"><span class="doc">Components</span></a> - Component types reference</p></li>
+<li><p><a class="reference internal" href="dfm_integration.html"><span class="doc">DV Flow Manager Integration</span></a> - DFM workflow setup</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Zuspec Backend HDLSim</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dfm_integration.html">DV Flow Manager Integration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example-1-simple-counter">Example 1: Simple Counter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-2-wishbone-bus">Example 2: Wishbone Bus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-3-multi-component-system">Example 3: Multi-Component System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="dfm_integration.html" title="previous chapter">DV Flow Manager Integration</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Matthew Ballance.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/examples.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

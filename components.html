@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Components &#8212; Zuspec Backend HDLSim  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="api_reference.html" />
+    <link rel="prev" title="Quick Start" href="quickstart.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="components">
+<h1>Components<a class="headerlink" href="#components" title="Link to this heading">¶</a></h1>
+<p>This document describes the component types supported by the HDLSim backend and
+how to use them effectively.</p>
+<section id="component-types">
+<h2>Component Types<a class="headerlink" href="#component-types" title="Link to this heading">¶</a></h2>
+<section id="extern-components">
+<h3>Extern Components<a class="headerlink" href="#extern-components" title="Link to this heading">¶</a></h3>
+<p>Extern components wrap existing SystemVerilog modules for integration with Zuspec
+testbenches.</p>
+<p><strong>Key Features</strong>:</p>
+<ul class="simple">
+<li><p>Inherit from <code class="docutils literal notranslate"><span class="pre">Extern</span></code> protocol</p></li>
+<li><p>Reference pre-existing HDL modules</p></li>
+<li><p>Provide source file information via <code class="docutils literal notranslate"><span class="pre">&#64;annotation_fileset</span></code></p></li>
+<li><p>Define ports as Signal fields</p></li>
+<li><p>Implemented entirely in SystemVerilog</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">zuspec.dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">Component</span><span class="p">,</span> <span class="n">Signal</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">output</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">zuspec.dataclasses.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extern</span><span class="p">,</span> <span class="n">annotation_fileset</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UartModule</span><span class="p">(</span><span class="n">Component</span><span class="p">,</span> <span class="n">Extern</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for existing uart.sv module.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Port declarations</span>
+    <span class="n">clock</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+    <span class="n">reset</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+    <span class="n">tx_data</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+    <span class="n">tx_valid</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+    <span class="n">tx_ready</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">output</span><span class="p">()</span>
+
+    <span class="c1"># Provide source files</span>
+    <span class="nd">@annotation_fileset</span><span class="p">(</span><span class="n">sources</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;rtl/uart.sv&quot;</span><span class="p">,</span> <span class="s2">&quot;rtl/uart_pkg.sv&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p><strong>Usage Guidelines</strong>:</p>
+<ul class="simple">
+<li><p>Port names and directions should match the HDL module</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">&#64;annotation_fileset</span></code> to specify all required source files</p></li>
+<li><p>Extern components can only connect to other SV-domain components</p></li>
+<li><p>No Python-side implementation needed</p></li>
+</ul>
+</section>
+<section id="xtorcomponent-transactors">
+<h3>XtorComponent Transactors<a class="headerlink" href="#xtorcomponent-transactors" title="Link to this heading">¶</a></h3>
+<p>XtorComponent defines transactors that bridge the Python and SystemVerilog domains.</p>
+<p><strong>Key Features</strong>:</p>
+<ul class="simple">
+<li><p>Inherit from <code class="docutils literal notranslate"><span class="pre">XtorComponent[ProtocolType]</span></code></p></li>
+<li><p>Protocol defines the transaction-level API</p></li>
+<li><p>SystemVerilog implementation generated by zuspec-be-sv</p></li>
+<li><p>Python proxy generated via PyHDL-IF</p></li>
+<li><p>Access via <code class="docutils literal notranslate"><span class="pre">xtor_if</span></code> attribute in Python tests</p></li>
+</ul>
+<p><strong>Protocol Definition</strong>:</p>
+<p>The protocol class defines the API methods available to Python tests:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">WishboneInitiatorIf</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wishbone bus initiator protocol.&quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write to address.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read from address.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wait_ack</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wait for acknowledge.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p><strong>Transactor Definition</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WishboneInitiator</span><span class="p">(</span><span class="n">XtorComponent</span><span class="p">[</span><span class="n">WishboneInitiatorIf</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wishbone bus initiator transactor.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Port declarations</span>
+    <span class="n">clock</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+    <span class="n">reset</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+
+    <span class="c1"># Wishbone signals</span>
+    <span class="n">wb_adr</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_dat_o</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_dat_i</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+    <span class="n">wb_cyc</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_stb</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_we</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">output</span><span class="p">()</span>
+    <span class="n">wb_ack</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Python Test Usage</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_wishbone_write</span><span class="p">(</span><span class="n">tb</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test Wishbone write transaction.&quot;&quot;&quot;</span>
+    <span class="c1"># Access transactor via xtor_if</span>
+    <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">wb_init</span><span class="o">.</span><span class="n">xtor_if</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">addr</span><span class="o">=</span><span class="mh">0x1000</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="mh">0xDEADBEEF</span><span class="p">)</span>
+
+    <span class="c1"># Read back</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">wb_init</span><span class="o">.</span><span class="n">xtor_if</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">addr</span><span class="o">=</span><span class="mh">0x1000</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">value</span> <span class="o">==</span> <span class="mh">0xDEADBEEF</span>
+</pre></div>
+</div>
+<p><strong>Usage Guidelines</strong>:</p>
+<ul class="simple">
+<li><p>Protocol methods should be async for transaction-level operations</p></li>
+<li><p>Use sync methods for simple queries/configurations</p></li>
+<li><p>Transactor state is maintained in SystemVerilog</p></li>
+<li><p>Complex protocol implementations benefit from Protocol-driven design</p></li>
+</ul>
+</section>
+<section id="python-components">
+<h3>Python Components<a class="headerlink" href="#python-components" title="Link to this heading">¶</a></h3>
+<p>Standard Zuspec components that remain in the Python domain.</p>
+<p><strong>Key Features</strong>:</p>
+<ul class="simple">
+<li><p>Standard <code class="docutils literal notranslate"><span class="pre">&#64;dataclass</span></code> Zuspec components</p></li>
+<li><p>Run entirely in pytest/Python</p></li>
+<li><p>Cannot connect to signals (use TLM interfaces only)</p></li>
+<li><p>Useful for test orchestration and high-level sequencing</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TestSequencer</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;High-level test sequence coordinator.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_basic_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xtor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a basic test sequence.&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="n">xtor</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0x100</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">xtor</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mh">0x200</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return test statistics.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;tests_run&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_count</span><span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Usage Guidelines</strong>:</p>
+<ul class="simple">
+<li><p>Use for test orchestration, sequence management</p></li>
+<li><p>Can hold test state and statistics</p></li>
+<li><p>Communicate with SV components via XtorComponent APIs</p></li>
+<li><p>Cannot access signals directly</p></li>
+</ul>
+</section>
+</section>
+<section id="component-bindings">
+<h2>Component Bindings<a class="headerlink" href="#component-bindings" title="Link to this heading">¶</a></h2>
+<section id="signal-connectivity">
+<h3>Signal Connectivity<a class="headerlink" href="#signal-connectivity" title="Link to this heading">¶</a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">__bind__</span></code> to define signal connections between components:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyTestbench</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="n">dut</span><span class="p">:</span> <span class="n">UartModule</span> <span class="o">=</span> <span class="n">inst</span><span class="p">()</span>
+    <span class="n">tx_xtor</span><span class="p">:</span> <span class="n">UartTxXtor</span> <span class="o">=</span> <span class="n">inst</span><span class="p">()</span>
+    <span class="n">clkrst</span><span class="p">:</span> <span class="n">ClkRstXtor</span> <span class="o">=</span> <span class="n">inst</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__bind__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Define signal bindings.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="c1"># Clock/reset connections</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">clock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dut</span><span class="o">.</span><span class="n">clock</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dut</span><span class="o">.</span><span class="n">reset</span><span class="p">),</span>
+
+            <span class="c1"># Data connections</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tx_xtor</span><span class="o">.</span><span class="n">tx_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dut</span><span class="o">.</span><span class="n">tx_data</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tx_xtor</span><span class="o">.</span><span class="n">tx_valid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dut</span><span class="o">.</span><span class="n">tx_valid</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dut</span><span class="o">.</span><span class="n">tx_ready</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tx_xtor</span><span class="o">.</span><span class="n">tx_ready</span><span class="p">),</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Binding Rules</strong>:</p>
+<ul class="simple">
+<li><p>Only SV-domain components (Extern, XtorComponent) can have signal bindings</p></li>
+<li><p>Each binding is a tuple: <code class="docutils literal notranslate"><span class="pre">(source_signal,</span> <span class="pre">dest_signal)</span></code></p></li>
+<li><p>Direction must match (output -&gt; input)</p></li>
+<li><p>Python components cannot participate in signal bindings</p></li>
+</ul>
+</section>
+</section>
+<section id="profile-and-checker">
+<h2>Profile and Checker<a class="headerlink" href="#profile-and-checker" title="Link to this heading">¶</a></h2>
+<section id="hdltestbench-profile">
+<h3>HDLTestbench Profile<a class="headerlink" href="#hdltestbench-profile" title="Link to this heading">¶</a></h3>
+<p>The HDLTestbench profile enforces domain separation rules:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">zuspec.be.hdlsim.profile</span><span class="w"> </span><span class="kn">import</span> <span class="n">HDLTestbenchProfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">zuspec.be.hdlsim.checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">HDLTestbenchChecker</span>
+
+<span class="c1"># Get profile instance</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">HDLTestbenchProfile</span>
+
+<span class="c1"># Get checker</span>
+<span class="n">checker</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">get_checker</span><span class="p">()</span>
+
+<span class="c1"># Check component</span>
+<span class="n">checker</span><span class="o">.</span><span class="n">check_component</span><span class="p">(</span><span class="n">MyTestbench</span><span class="p">)</span>
+
+<span class="c1"># Report errors</span>
+<span class="k">if</span> <span class="n">checker</span><span class="o">.</span><span class="n">has_errors</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">checker</span><span class="o">.</span><span class="n">get_errors</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="validation-rules">
+<h3>Validation Rules<a class="headerlink" href="#validation-rules" title="Link to this heading">¶</a></h3>
+<p>The checker validates:</p>
+<ol class="arabic simple">
+<li><p><strong>Domain Separation</strong>: No signal connections between Python and SV domains</p></li>
+<li><p><strong>Component Classification</strong>: Correct use of Extern, XtorComponent, Component</p></li>
+<li><p><strong>Binding Validity</strong>: Signal direction and type compatibility</p></li>
+<li><p><strong>Protocol Compliance</strong>: XtorComponent correctly implements Protocol</p></li>
+</ol>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<section id="design-guidelines">
+<h3>Design Guidelines<a class="headerlink" href="#design-guidelines" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Minimize Signal Crossing</strong>: Keep SV components together, use TLM at boundaries</p></li>
+<li><p><strong>Protocol First</strong>: Design transaction APIs before implementing transactors</p></li>
+<li><p><strong>Composition</strong>: Build complex testbenches from smaller, reusable components</p></li>
+<li><p><strong>Separation</strong>: Keep test logic (Python) separate from signal protocols (SV)</p></li>
+</ul>
+</section>
+<section id="performance-considerations">
+<h3>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Transaction Granularity</strong>: Coarser transactions reduce Python/SV crossing overhead</p></li>
+<li><p><strong>Buffering</strong>: Use FIFOs/buffers at domain boundaries</p></li>
+<li><p><strong>Batch Operations</strong>: Group related operations in single API calls</p></li>
+</ul>
+</section>
+<section id="debugging-tips">
+<h3>Debugging Tips<a class="headerlink" href="#debugging-tips" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Use profile checker early and often during development</p></li>
+<li><p>Generate SV files and inspect them to understand what’s being created</p></li>
+<li><p>Test transactors independently before integration</p></li>
+<li><p>Use PyHDL-IF logging to trace Python/SV communication</p></li>
+</ul>
+</section>
+</section>
+<section id="common-patterns">
+<h2>Common Patterns<a class="headerlink" href="#common-patterns" title="Link to this heading">¶</a></h2>
+<section id="clock-reset-management">
+<h3>Clock/Reset Management<a class="headerlink" href="#clock-reset-management" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClkRstXtor</span><span class="p">(</span><span class="n">XtorComponent</span><span class="p">[</span><span class="n">ClkRstIf</span><span class="p">]):</span>
+    <span class="n">clock</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">output</span><span class="p">()</span>
+    <span class="n">reset</span><span class="p">:</span> <span class="n">Signal</span> <span class="o">=</span> <span class="n">output</span><span class="p">()</span>
+
+<span class="c1"># In test:</span>
+<span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">reset_pulse</span><span class="p">(</span><span class="n">cycles</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">clkrst</span><span class="o">.</span><span class="n">wait_cycles</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="bus-interfaces">
+<h3>Bus Interfaces<a class="headerlink" href="#bus-interfaces" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BusInitiator</span><span class="p">(</span><span class="n">XtorComponent</span><span class="p">[</span><span class="n">BusInitiatorIf</span><span class="p">]):</span>
+    <span class="c1"># Bus signals</span>
+    <span class="o">...</span>
+
+<span class="c1"># In test:</span>
+<span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">write_burst</span><span class="p">(</span><span class="n">addr</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tb</span><span class="o">.</span><span class="n">bus</span><span class="o">.</span><span class="n">read_burst</span><span class="p">(</span><span class="n">addr</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="monitor-components">
+<h3>Monitor Components<a class="headerlink" href="#monitor-components" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScoreboardMonitor</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Python-domain monitor.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transactions</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xtor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Monitor transactions.&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">trans</span> <span class="o">=</span> <span class="k">await</span> <span class="n">xtor</span><span class="o">.</span><span class="n">wait_transaction</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Zuspec Backend HDLSim</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#component-types">Component Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#component-bindings">Component Bindings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#profile-and-checker">Profile and Checker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-patterns">Common Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dfm_integration.html">DV Flow Manager Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="quickstart.html" title="previous chapter">Quick Start</a></li>
+      <li>Next: <a href="api_reference.html" title="next chapter">API Reference</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, Matthew Ballance.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/components.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

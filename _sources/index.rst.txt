@@ -1,17 +1,20 @@
-.. Zuspec Backend HDLSim documentation master file, created by
-   sphinx-quickstart on Wed Jan  7 15:19:05 2026.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Zuspec Backend HDLSim
+=====================
 
-Zuspec Backend HDLSim documentation
-===================================
-
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
-
+The Zuspec HDLSim backend enables co-simulation of Zuspec testbench descriptions with 
+existing HDL designs (SystemVerilog/Verilog). It bridges Python-based Zuspec test 
+environments with hardware simulators, allowing you to drive HDL designs from Python 
+tests while executing critical paths in hardware simulation.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   overview
+   architecture
+   quickstart
+   components
+   api_reference
+   dfm_integration
+   examples
 

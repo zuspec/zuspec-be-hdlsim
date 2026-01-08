@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Zuspec Backend HDLSim documentation &#8212; Zuspec Backend HDLSim  documentation</title>
+    <title>Zuspec Backend HDLSim &#8212; Zuspec Backend HDLSim  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
@@ -14,6 +14,7 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Overview" href="overview.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -31,12 +32,82 @@
 
           <div class="body" role="main">
             
-  <section id="zuspec-backend-hdlsim-documentation">
-<h1>Zuspec Backend HDLSim documentation<a class="headerlink" href="#zuspec-backend-hdlsim-documentation" title="Link to this heading">¶</a></h1>
-<p>Add your content using <code class="docutils literal notranslate"><span class="pre">reStructuredText</span></code> syntax. See the
-<a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html">reStructuredText</a>
-documentation for details.</p>
+  <section id="zuspec-backend-hdlsim">
+<h1>Zuspec Backend HDLSim<a class="headerlink" href="#zuspec-backend-hdlsim" title="Link to this heading">¶</a></h1>
+<p>The Zuspec HDLSim backend enables co-simulation of Zuspec testbench descriptions with
+existing HDL designs (SystemVerilog/Verilog). It bridges Python-based Zuspec test
+environments with hardware simulators, allowing you to drive HDL designs from Python
+tests while executing critical paths in hardware simulation.</p>
 <div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#what-is-zuspec-backend-hdlsim">What is Zuspec Backend HDLSim?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#key-capabilities">Key Capabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#when-to-use-hdlsim-backend">When to Use HDLSim Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#architecture-approach">Architecture Approach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#comparison-with-other-zuspec-backends">Comparison with Other Zuspec Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#system-architecture">System Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#component-classification">Component Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#domain-separation-rules">Domain Separation Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#generation-flow">Generation Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#code-generation-details">Code Generation Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#key-classes">Key Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-1-define-your-components">Step 1: Define Your Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-2-create-your-test">Step 2: Create Your Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-3-create-dfm-flow-specification">Step 3: Create DFM Flow Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-4-create-rtl">Step 4: Create RTL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-5-generate-and-run">Step 5: Generate and Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#what-happens-at-runtime">What Happens at Runtime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="components.html#component-types">Component Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.html#component-bindings">Component Bindings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.html#profile-and-checker">Profile and Checker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.html#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components.html#common-patterns">Common Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#core-modules">Core Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#type-definitions">Type Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dfm_integration.html">DV Flow Manager Integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#gentb-task">GenTB Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#flow-specification-example">Flow Specification Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#simulator-integration">Simulator Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#running-tasks">Running Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#advanced-patterns">Advanced Patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#working-with-filesets">Working with Filesets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#debugging">Debugging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dfm_integration.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#example-1-simple-counter">Example 1: Simple Counter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#example-2-wishbone-bus">Example 2: Wishbone Bus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#example-3-multi-component-system">Example 3: Multi-Component System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
 </div>
 </section>
 
@@ -66,11 +137,22 @@ documentation for details.</p>
     </div>
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dfm_integration.html">DV Flow Manager Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="overview.html" title="next chapter">Overview</a></li>
   </ul></li>
 </ul>
 </div>
